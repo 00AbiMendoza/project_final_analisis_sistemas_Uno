@@ -134,3 +134,82 @@ php artisan test
 ## Entrega esperada
 
 El estudiante debe trabajar sobre su propio fork del repositorio y entregar en Canvas el enlace al repositorio forkeado, junto con una breve descripción del módulo implementado y los commits principales que evidencian su avance.
+
+## Módulo trabajado
+
+**Estudiante:** Esaú Abimael de la Cruz
+**Carné:** 1890-21-13279
+**Módulo asignado:** Módulo 12 - Agenda de citas
+
+## Descripción del módulo
+
+Se implementó una vista de agenda de citas médicas para consultar citas programadas en modo diario o semanal. La pantalla permite visualizar información básica de cada cita, incluyendo fecha, hora, paciente, médico responsable, motivo y estado.
+
+## Funcionalidades implementadas
+
+* Ruta `/agenda-citas` integrada al router de Vue.
+* Enlace de navegación "Agenda de citas" en el layout principal.
+* Vista diaria y semanal de citas programadas.
+* Filtro por fecha.
+* Filtro por estado de cita.
+* Búsqueda por paciente, médico o motivo.
+* Botón para limpiar filtros.
+* Ordenamiento de citas por fecha y hora.
+* Indicadores de resumen para citas visibles, vista activa y rango consultado.
+* Diagramas UML documentados en `docs/agenda-citas-uml.md`.
+
+## Cómo revisar la solución
+
+1. Instalar dependencias frontend:
+
+```bash
+npm install
+```
+
+2. Ejecutar build de validación:
+
+```bash
+npm run build
+```
+
+3. Revisar la ruta del módulo:
+
+```text
+/agenda-citas
+```
+
+4. Revisar los diagramas UML:
+
+```text
+docs/agenda-citas-uml.md
+```
+
+## Commits principales
+
+| Sprint   | Commit    | Descripción                                                                    |
+| -------- | --------- | ------------------------------------------------------------------------------ |
+| Sprint 1 | `ed1e197` | Creación de la estructura base del módulo Agenda de citas, ruta y navegación.  |
+| Sprint 2 | `fd2308d` | Mejora de filtros, búsqueda, limpieza de filtros y ordenamiento de citas.      |
+| Sprint 3 | `6463f36` | Documentación UML del módulo con diagramas de caso de uso, clases y secuencia. |
+
+## Verificación aplicada
+
+Se ejecutó el build del frontend con Vite mediante:
+
+```bash
+npm run build
+```
+
+Resultado: compilación correcta del frontend.
+
+## Decisión humana tomada
+
+Se decidió implementar el módulo como una vista frontend funcional y documentada, debido a que el proyecto base no contenía entidades, rutas ni API previa para citas médicas. La vista permite validar el flujo de agenda sin modificar la estructura base del backend.
+
+## Prompt usado
+
+Se solicitó apoyo paso a paso para implementar el módulo asignado del examen de Análisis de Sistemas I, respetando la dinámica de fork, commits por sprint, documentación UML y evidencia de verificación.
+
+## Objetivo del prompt
+
+Guiar la implementación del Módulo 12 - Agenda de citas, dejando trazabilidad mediante commits claros, documentación técnica y una forma verificable de revisar la solución.
