@@ -45,6 +45,22 @@
                     <option value="Cancelada">Cancelada</option>
                 </select>
             </label>
+
+            <label class="agenda__field agenda__field--wide">
+                Buscar
+                <input
+                    v-model="searchTerm"
+                    class="agenda__input"
+                    type="search"
+                    placeholder="Paciente, médico o motivo"
+                >
+            </label>
+
+            <div class="agenda__filter-actions">
+                <button class="agenda__button" type="button" @click="clearFilters">
+                    Limpiar filtros
+                </button>
+            </div>
         </div>
 
         <div class="agenda__summary">
@@ -57,8 +73,8 @@
                 <strong>{{ viewMode === 'day' ? 'Diaria' : 'Semanal' }}</strong>
             </article>
             <article class="agenda__card">
-                <span>Fecha base</span>
-                <strong>{{ formatDate(selectedDate) }}</strong>
+                <span>Rango consultado</span>
+                <strong>{{ agendaRangeLabel }}</strong>
             </article>
         </div>
 
@@ -94,9 +110,12 @@
 <script setup>
 import { computed, ref } from 'vue';
 
-const selectedDate = ref('2026-06-13');
+const defaultDate = '2026-06-13';
+
+const selectedDate = ref(defaultDate);
 const viewMode = ref('day');
 const statusFilter = ref('all');
+const searchTerm = ref('');
 
 const appointments = [
     {
@@ -146,24 +165,63 @@ const appointments = [
     },
 ];
 
-const visibleAppointments = computed(function () {
-    return appointments.filter(function (appointment) {
-        const matchesStatus = statusFilter.value === 'all'
-            || appointment.status === statusFilter.value;
+const agendaRangeLabel = computed(function () {
+    if (viewMode.value === 'day') {
+        return formatDate(selectedDate.value);
+    }
 
-        if (!matchesStatus) return false;
+    const start = new Date(selectedDate.value + 'T00:00:00');
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
 
-        if (viewMode.value === 'day') {
-            return appointment.date === selectedDate.value;
-        }
-
-        const start = new Date(selectedDate.value + 'T00:00:00');
-        const current = new Date(appointment.date + 'T00:00:00');
-        const difference = (current - start) / 86400000;
-
-        return difference >= 0 && difference < 7;
-    });
+    return formatDate(selectedDate.value) + ' - ' + formatDate(toInputDate(end));
 });
+
+const visibleAppointments = computed(function () {
+    return appointments
+        .filter(function (appointment) {
+            return matchesStatus(appointment)
+                && matchesDateRange(appointment)
+                && matchesSearch(appointment);
+        })
+        .sort(function (first, second) {
+            return String(first.date + first.time).localeCompare(second.date + second.time);
+        });
+});
+
+function matchesStatus(appointment) {
+    return statusFilter.value === 'all'
+        || appointment.status === statusFilter.value;
+}
+
+function matchesDateRange(appointment) {
+    if (viewMode.value === 'day') {
+        return appointment.date === selectedDate.value;
+    }
+
+    const start = new Date(selectedDate.value + 'T00:00:00');
+    const current = new Date(appointment.date + 'T00:00:00');
+    const difference = (current - start) / 86400000;
+
+    return difference >= 0 && difference < 7;
+}
+
+function matchesSearch(appointment) {
+    const term = searchTerm.value.trim().toLowerCase();
+
+    if (!term) return true;
+
+    return appointment.patient.toLowerCase().includes(term)
+        || appointment.doctor.toLowerCase().includes(term)
+        || appointment.reason.toLowerCase().includes(term);
+}
+
+function clearFilters() {
+    selectedDate.value = defaultDate;
+    viewMode.value = 'day';
+    statusFilter.value = 'all';
+    searchTerm.value = '';
+}
 
 function formatDate(value) {
     const date = new Date(value + 'T00:00:00');
@@ -173,6 +231,10 @@ function formatDate(value) {
         month: 'short',
         year: 'numeric',
     }).format(date);
+}
+
+function toInputDate(date) {
+    return date.toISOString().slice(0, 10);
 }
 
 function statusClass(status) {
@@ -219,9 +281,14 @@ function statusClass(status) {
     margin: 0.5rem 0 0;
 }
 
-.agenda__actions {
+.agenda__actions,
+.agenda__filter-actions {
     display: flex;
     gap: 0.5rem;
+}
+
+.agenda__filter-actions {
+    align-items: flex-end;
 }
 
 .agenda__button {
@@ -247,6 +314,10 @@ function statusClass(status) {
     gap: 1rem;
 }
 
+.agenda__filters {
+    grid-template-columns: 180px 180px minmax(240px, 1fr) auto;
+}
+
 .agenda__summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -267,6 +338,10 @@ function statusClass(status) {
     gap: 0.35rem;
     color: #334155;
     font-size: 0.9rem;
+}
+
+.agenda__field--wide {
+    min-width: 240px;
 }
 
 .agenda__input {
@@ -356,6 +431,17 @@ function statusClass(status) {
     text-align: center;
 }
 
+@media (max-width: 960px) {
+    .agenda__filters {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .agenda__field--wide,
+    .agenda__filter-actions {
+        grid-column: 1 / -1;
+    }
+}
+
 @media (max-width: 760px) {
     .agenda__header,
     .appointment {
@@ -366,6 +452,11 @@ function statusClass(status) {
     .agenda__filters,
     .agenda__summary {
         grid-template-columns: 1fr;
+    }
+
+    .agenda__field--wide,
+    .agenda__filter-actions {
+        grid-column: auto;
     }
 }
 </style>
