@@ -8,6 +8,9 @@
                 <router-link class="layout__link" to="/">
                     Inicio
                 </router-link>
+                <router-link class="layout__link" to="/agenda-citas">
+                    Agenda de citas
+                </router-link>
                 <router-link class="layout__link" to="/login">
                     Acceso
                 </router-link>
